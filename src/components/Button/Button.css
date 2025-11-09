@@ -1,0 +1,17 @@
+
+.btn-base {
+    background: linear-gradient(180deg, rgba(59, 130, 246, 1) 0%, rgba(37, 99, 235, 1) 100%);
+    color: white;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+    border: none;
+}
+
+.btn-base:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+.btn-base:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
