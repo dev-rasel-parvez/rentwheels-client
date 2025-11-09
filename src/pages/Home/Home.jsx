@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Loader from "../../components/Loader";
 import Slider from "react-slick";
+import { FaTags, FaShieldAlt, FaHeadset, FaRegCalendarCheck } from "react-icons/fa";
+import TopRatedCars from "../../components/TopRatedCars";
+import Testimonials from "../../components/Testimonials ";
+import Newsletter from "../../components/Newsletter ";
 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -17,6 +21,7 @@ export default function Home() {
         const res = await fetch(`${API_URL}/cars`);
         const data = await res.json();
         setCars(data || []);
+        console.log(data)
       } catch (err) {
         console.error(err);
       } finally {
@@ -137,10 +142,10 @@ export default function Home() {
 
       {/* FEATURED CARS */}
       <section className="mb-12">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold">Featured Cars</h2>
-          <Link to="/browse" className="text-sm text-sky-600">See all</Link>
+        <div className="relative mb-4 text-center">
+          <h2 className="text-3xl font-semibold">Our Featured Cars</h2>
         </div>
+
 
         {loading ? (
           <Loader />
@@ -148,18 +153,19 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featured.length === 0 && <div className="text-gray-500">No cars available yet.</div>}
             {featured.map((c) => (
-              <div key={c._id} className="border rounded-lg overflow-hidden shadow-sm">
-                <img src={c.imageURL || "/assets/car-placeholder.jpg"} alt={c.name} className="w-full h-44 object-cover" />
+              <div key={c._id} className="border rounded-lg overflow-hidden shadow-sm cursor-pointer">
+                <img src={c.imageUrl || "/assets/car-placeholder.jpg"} alt={c.name} className="w-full h-44 object-cover" />
                 <div className="p-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">{c.name}</h3>
+                    <h3 className="font-semibold">{c.carName}</h3>
                     <span className={`text-xs px-2 py-1 rounded ${c.status === "booked" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
                       {c.status === "booked" ? "Booked" : "Available"}
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mt-1">{c.category} • {c.location}</p>
+                  <p className="text-sm text-gray-600 mt-1"> <span className="font-bold">Provider Name:</span> {c.providerName}</p>
                   <div className="mt-3 flex items-center justify-between">
-                    <div className="text-lg font-bold">${c.pricePerDay}/day</div>
+                    <div className="text-lg font-bold">${c.rentPricePerDay}/day</div>
                     <Link to={`/cars/${c._id}`} className="text-sm py-1 px-3 border rounded-md">View Details</Link>
                   </div>
                 </div>
@@ -167,72 +173,87 @@ export default function Home() {
             ))}
           </div>
         )}
+
+        <div className="relative my-4 text-center">
+          <Link to="/browse-cars" className="absolute right-0 top-1/2 -translate-y-1/2 text-sm text-sky-600">
+            See all
+          </Link>
+        </div>
+
       </section>
 
       {/* WHY RENT WITH US */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Why Rent With Us</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-4 border rounded-lg">
-            <h4 className="font-semibold">Easy Booking</h4>
-            <p className="text-sm text-gray-600 mt-2">Quick search, transparent pricing, and instant booking confirmations.</p>
+      <section className="mb-16 px-4">
+        <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
+          Why Rent With Us
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+          {/* Card 1 */}
+          <div className="p-6 bg-white/60 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 mb-4 flex items-center justify-center rounded-full bg-sky-100 text-sky-600">
+                <FaRegCalendarCheck></FaRegCalendarCheck>
+              </div>
+              <h4 className="text-lg font-semibold mb-2 text-gray-800">Easy Booking</h4>
+              <p className="text-sm text-gray-600">
+                Quick search, transparent pricing, and instant booking confirmations.
+              </p>
+            </div>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h4 className="font-semibold">Affordable Rates</h4>
-            <p className="text-sm text-gray-600 mt-2">Competitive daily pricing from local providers.</p>
+
+          {/* Card 2 */}
+          <div className="p-6 bg-white/60 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 mb-4 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                <FaTags></FaTags>
+              </div>
+              <h4 className="text-lg font-semibold mb-2 text-gray-800">Affordable Rates</h4>
+              <p className="text-sm text-gray-600">
+                Competitive daily pricing from trusted local providers.
+              </p>
+            </div>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h4 className="font-semibold">Trusted Providers</h4>
-            <p className="text-sm text-gray-600 mt-2">Provider profiles and booking history help you choose with confidence.</p>
+
+          {/* Card 3 */}
+          <div className="p-6 bg-white/60 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 mb-4 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
+                <FaShieldAlt></FaShieldAlt>
+              </div>
+              <h4 className="text-lg font-semibold mb-2 text-gray-800">Trusted Providers</h4>
+              <p className="text-sm text-gray-600">
+                Verified profiles and booking history for confident choices.
+              </p>
+            </div>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h4 className="font-semibold">24/7 Support</h4>
-            <p className="text-sm text-gray-600 mt-2">Our team is available to help whenever you need us.</p>
+
+          {/* Card 4 */}
+          <div className="p-6 bg-white/60 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 mb-4 flex items-center justify-center rounded-full bg-rose-100 text-rose-600">
+                <FaHeadset></FaHeadset>
+              </div>
+              <h4 className="text-lg font-semibold mb-2 text-gray-800">24/7 Support</h4>
+              <p className="text-sm text-gray-600">
+                Our friendly team is ready to help whenever you need us.
+              </p>
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* EXTRA: Top Rated */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Top Rated Cars</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Static top-rated examples (replace with real logic later) */}
-          <div className="border rounded-lg p-4">
-            <div className="font-semibold">Toyota Camry</div>
-            <div className="text-sm text-gray-600 mt-2">Reliable, comfortable, great fuel efficiency.</div>
-            <div className="mt-3">⭐ ⭐ ⭐ ⭐ ☆</div>
-          </div>
-          <div className="border rounded-lg p-4">
-            <div className="font-semibold">Honda CR-V</div>
-            <div className="text-sm text-gray-600 mt-2">Spacious SUV ideal for families.</div>
-            <div className="mt-3">⭐ ⭐ ⭐ ⭐ ☆</div>
-          </div>
-          <div className="border rounded-lg p-4">
-            <div className="font-semibold">Tesla Model 3</div>
-            <div className="text-sm text-gray-600 mt-2">Electric, modern, high-tech features.</div>
-            <div className="mt-3">⭐ ⭐ ⭐ ⭐ ⭐</div>
-          </div>
-        </div>
-      </section>
+      <TopRatedCars></TopRatedCars>
 
       {/* EXTRA: Testimonials */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Customer Testimonials</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-4 border rounded-lg">
-            <div className="font-semibold">Aisha R.</div>
-            <div className="text-sm text-gray-600 mt-2">"Smooth booking and friendly provider. Highly recommend!"</div>
-          </div>
-          <div className="p-4 border rounded-lg">
-            <div className="font-semibold">Carlos M.</div>
-            <div className="text-sm text-gray-600 mt-2">"Great rates and reliable cars. Will use again."</div>
-          </div>
-          <div className="p-4 border rounded-lg">
-            <div className="font-semibold">Lina K.</div>
-            <div className="text-sm text-gray-600 mt-2">"The booking process was simple and fast."</div>
-          </div>
-        </div>
-      </section>
+
+      <Testimonials></Testimonials>
+
+      {/* EXTRA: Newsletter */}
+      <Newsletter></Newsletter>
+
     </div>
   );
 }
