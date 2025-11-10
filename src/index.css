@@ -19,3 +19,9 @@
 .swal2-progress-bar-green {
   background-color: #22c55e !important; /* Tailwind's green-500 */
 }
+
+.small-popup {
+  width: 350px !important; /* default is ~500px */
+  font-size: 0.9rem;       /* slightly smaller text */
+  padding: 22px !important;
+}

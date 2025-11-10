@@ -64,7 +64,7 @@ const AddCar = () => {
         },
       }).then((result) => {
         if (result.dismiss === Swal.DismissReason.timer) {
-          navigate("/browse-cars");
+          navigate("/my-listings");
         }
       });
 

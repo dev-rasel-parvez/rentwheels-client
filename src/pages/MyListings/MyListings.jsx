@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 
-
 const MyListings = () => {
   const { user } = useAuth();
   const AxiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
+
   const [myCars, setMyCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCar, setSelectedCar] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [noCarsAlertShown, setNoCarsAlertShown] = useState(false);
 
-
+  // Fetch user cars
   useEffect(() => {
     if (user?.email) {
       AxiosSecure.get(`/my-cars?email=${user.email}`)
@@ -27,7 +30,28 @@ const MyListings = () => {
     }
   }, [AxiosSecure, user?.email]);
 
+  // Show alert if no cars
+  useEffect(() => {
+    if (!loading && myCars.length === 0 && !noCarsAlertShown) {
+      setNoCarsAlertShown(true);
 
+      Swal.fire({
+        title: "You don't have any listed cars.",
+        text: "Please go to Add Cars Page",
+        confirmButtonText: "Add Cars",
+        timer: 25000,
+        timerProgressBar: true,
+        allowOutsideClick: true,
+        customClass: {
+          timerProgressBar: 'swal2-progress-bar-green'
+        }
+      }).then(() => {
+        navigate("/add-car");
+      });
+    }
+  }, [loading, myCars.length, noCarsAlertShown, navigate]);
+
+  // Delete a car
   const handleDelete = async (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -62,13 +86,13 @@ const MyListings = () => {
     });
   };
 
-
+  // Edit a car
   const handleEdit = (car) => {
     setSelectedCar(car);
     setShowModal(true);
   };
 
-  //handleUpdateSubmit
+  // Update car details
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
 
@@ -97,7 +121,6 @@ const MyListings = () => {
         try {
           await AxiosSecure.patch(`/cars/${selectedCar._id}`, updatedCar);
 
-          // Update state
           setMyCars((prev) =>
             prev.map((car) =>
               car._id === selectedCar._id ? { ...car, ...updatedCar } : car
@@ -138,8 +161,6 @@ const MyListings = () => {
       }
     });
   };
-
-
 
   if (loading)
     return (

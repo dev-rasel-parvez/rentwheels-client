@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const CarDetails = () => {
     const { id } = useParams();
@@ -57,7 +58,23 @@ const CarDetails = () => {
 
             await AxiosSecure.post("/bookings", bookingData);
 
-            toast.success("Car booked successfully!");
+            // toast.success("Car booked successfully!");
+
+            Swal.fire({
+                position: "top-center",
+                icon: "success",
+                title: "Your booking has been completed",
+                showConfirmButton: false,
+                timer: 2500,
+                customClass: {
+                    popup: 'small-popup'
+                }
+            });
+
+            setTimeout(() => {
+                navigate("/my-bookings");
+            }, 2700);
+
             setCar((prev) => ({ ...prev, status: "booked" }));
         } catch (err) {
             console.error("Booking failed:", err);
