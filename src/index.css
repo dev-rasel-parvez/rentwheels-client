@@ -14,3 +14,8 @@
   background-size: 200% 200%;
   animation: gradient-x 3s ease infinite;
 }
+
+
+.swal2-progress-bar-green {
+  background-color: #22c55e !important; /* Tailwind's green-500 */
+}
