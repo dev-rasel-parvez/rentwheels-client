@@ -34,7 +34,6 @@ const MyBookings = () => {
       Swal.fire({
         title: "You have no active bookings.",
         text: "Please go to browse cars.",
-        
         confirmButtonText: "Browse Cars",
         timer: 25000, // 25 seconds
         timerProgressBar: true,
@@ -42,10 +41,9 @@ const MyBookings = () => {
         allowOutsideClick: true,
         allowEscapeKey: false,
         customClass: {
-          timerProgressBar: 'swal2-progress-bar-green'
-        }
-      }).then((result) => {
-        // Redirect when button clicked or timer ends
+          timerProgressBar: "swal2-progress-bar-green",
+        },
+      }).then(() => {
         navigate("/browse-cars");
       });
 
@@ -53,16 +51,39 @@ const MyBookings = () => {
     }
   }, [loading, bookings, noBookingsAlertShown, navigate]);
 
+  // ✅ Updated Cancel Handler (with SweetAlert2)
   const handleCancel = async (id) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-    try {
-      await AxiosSecure.delete(`/bookings/${id}`);
-      toast.success("Booking cancelled successfully!");
-      setBookings((prev) => prev.filter((b) => b._id !== id));
-    } catch (err) {
-      console.error("Cancel booking failed:", err);
-      toast.error("Failed to cancel booking!");
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this cancellation!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, cancel it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await AxiosSecure.delete(`/bookings/${id}`);
+          setBookings((prev) => prev.filter((b) => b._id !== id));
+
+          // Success message
+          Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: "Booking cancelled successfully!",
+            showConfirmButton: false,
+            timer: 1500,
+            customClass: {
+              popup: "small-popup", // optional small size class
+            },
+          });
+        } catch (err) {
+          console.error("Cancel booking failed:", err);
+          toast.error("Failed to cancel booking!");
+        }
+      }
+    });
   };
 
   if (loading)
@@ -120,10 +141,11 @@ const MyBookings = () => {
                 <p className="text-sm">
                   <span className="font-medium">Status:</span>{" "}
                   <span
-                    className={`${booking.status === "booked"
+                    className={`${
+                      booking.status === "booked"
                         ? "text-red-600"
                         : "text-green-600"
-                      } font-semibold`}
+                    } font-semibold`}
                   >
                     {booking.status || "Booked"}
                   </span>
