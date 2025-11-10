@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { AuthContext } from '../../context/AuthContext';
-import { toast } from 'react-toastify';
 
 const Signup = () => {
   const { Signup, loginWithGoogle } = useContext(AuthContext);
@@ -51,7 +50,7 @@ const Signup = () => {
   const handleSignUpWithGoogle = async () => {
     try {
       await loginWithGoogle();
-      // toast.success('Sign up with Google successfully done!');
+      
       navigate(location.state ? location.state : "/");
     } catch (err) {
       console.error(err);
