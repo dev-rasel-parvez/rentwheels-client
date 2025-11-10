@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+
 
 const MyListings = () => {
   const { user } = useAuth();
   const AxiosSecure = useAxiosSecure();
   const [myCars, setMyCars] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCar, setSelectedCar] = useState(null); 
+  const [selectedCar, setSelectedCar] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  
+
   useEffect(() => {
     if (user?.email) {
       AxiosSecure.get(`/my-cars?email=${user.email}`)
@@ -26,57 +27,119 @@ const MyListings = () => {
     }
   }, [AxiosSecure, user?.email]);
 
-  
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this car?")) return;
 
-    try {
-      await AxiosSecure.delete(`/cars/${id}`);
-      setMyCars((prev) => prev.filter((car) => car._id !== id));
-      toast.success("Car deleted successfully!");
-    } catch (err) {
-      console.error("Delete failed:", err);
-      toast.error("Failed to delete car!");
-    }
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await AxiosSecure.delete(`/cars/${id}`);
+          setMyCars((prev) => prev.filter((car) => car._id !== id));
+
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your car listing has been deleted.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } catch (err) {
+          console.error("Delete failed:", err);
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to delete car. Please try again.",
+            icon: "error",
+          });
+        }
+      }
+    });
   };
 
-  
+
   const handleEdit = (car) => {
     setSelectedCar(car);
     setShowModal(true);
   };
 
-  
+  //handleUpdateSubmit
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const form = e.target;
-      const updatedCar = {
-        carName: form.carName.value,
-        category: form.category.value,
-        rentPricePerDay: parseFloat(form.rentPricePerDay.value),
-        location: form.location.value,
-        imageUrl: form.imageUrl.value,
-        description: form.description.value,
-      };
 
-      await AxiosSecure.patch(`/cars/${selectedCar._id}`, updatedCar);
-      toast.success("Car updated successfully!");
+    const form = e.target;
+    const updatedCar = {
+      carName: form.carName.value,
+      category: form.category.value,
+      rentPricePerDay: parseFloat(form.rentPricePerDay.value),
+      location: form.location.value,
+      imageUrl: form.imageUrl.value,
+      description: form.description.value,
+    };
 
-      
-      setMyCars((prev) =>
-        prev.map((car) =>
-          car._id === selectedCar._id ? { ...car, ...updatedCar } : car
-        )
-      );
+    Swal.fire({
+      title: "Do you want to save the changes?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Save",
+      denyButtonText: `Don't save`,
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#3085d6",
+      denyButtonColor: "#6b7280",
+      cancelButtonColor: "#d33",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await AxiosSecure.patch(`/cars/${selectedCar._id}`, updatedCar);
 
-      setShowModal(false);
-      setSelectedCar(null);
-    } catch (err) {
-      console.error("Update failed:", err);
-      toast.error("Failed to update car!");
-    }
+          // Update state
+          setMyCars((prev) =>
+            prev.map((car) =>
+              car._id === selectedCar._id ? { ...car, ...updatedCar } : car
+            )
+          );
+
+          setShowModal(false);
+          setSelectedCar(null);
+
+          Swal.fire({
+            title: "Saved!",
+            text: "Your car details have been updated successfully.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } catch (err) {
+          console.error("Update failed:", err);
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to update car. Please try again.",
+            icon: "error",
+          });
+        }
+      } else if (result.isDenied) {
+        Swal.fire({
+          title: "Changes are not saved",
+          text: "Your previous car details remain unchanged.",
+          icon: "info",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        setShowModal(false);
+        setSelectedCar(null);
+      } else if (result.isDismissed) {
+        setShowModal(false);
+        setSelectedCar(null);
+      }
+    });
   };
+
+
 
   if (loading)
     return (
@@ -118,11 +181,10 @@ const MyListings = () => {
                   </td>
                   <td className="py-3 px-4 text-center">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        car.status === "booked"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${car.status === "booked"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-green-100 text-green-700"
+                        }`}
                     >
                       {car.status}
                     </span>
