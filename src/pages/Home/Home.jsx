@@ -153,7 +153,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featured.length === 0 && <div className="text-gray-500">No cars available yet.</div>}
             {featured.map((c) => (
-              <div key={c._id} className="border rounded-lg overflow-hidden shadow-sm cursor-pointer">
+              <Link to={`/cars/${c._id}`} key={c._id} className="border rounded-lg overflow-hidden shadow-sm cursor-pointer">
                 <img src={c.imageUrl || "/assets/car-placeholder.jpg"} alt={c.name} className="w-full h-44 object-cover" />
                 <div className="p-4">
                   <div className="flex items-center justify-between">
@@ -163,13 +163,13 @@ export default function Home() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mt-1">{c.category} • {c.location}</p>
-                  <p className="text-sm text-gray-600 mt-1"> <span className="font-bold">Provider Name:</span> {c.providerName}</p>
+                  <p className="text-sm text-gray-600 mt-1"> <span className="font-bold">Car Provider:</span> {c.providerName}</p>
                   <div className="mt-3 flex items-center justify-between">
                     <div className="text-lg font-bold">${c.rentPricePerDay}/day</div>
                     <Link to={`/cars/${c._id}`} className="text-sm py-1 px-3 border rounded-md">View Details</Link>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

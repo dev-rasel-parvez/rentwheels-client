@@ -63,7 +63,7 @@ const router = createBrowserRouter([
         hydrateFallbackElement: <Loading />,
       },
       {
-        path: "car/:id",
+        path: "cars/:id",
         element: (
           <PrivateRoute>
             <CarDetails />
