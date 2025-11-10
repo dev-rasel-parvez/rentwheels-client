@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const AddCar = () => {
   const { user } = useAuth();
@@ -39,8 +40,36 @@ const AddCar = () => {
 
     try {
       await axiosSecure.post("/cars", newCar);
-      toast.success("Car added successfully!");
-      navigate("/browse-cars");
+      let timerInterval;
+      Swal.fire({
+        title: "🚗 Car Added Successfully!",
+        icon: "success",
+        timer: 2500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#ffffff",
+        customClass: {
+          popup: "rounded-lg shadow-lg border border-gray-200",
+          title: "text-green-700 font-semibold",
+        },
+        didOpen: () => {
+          Swal.showLoading();
+          const timerEl = Swal.getPopup().querySelector("b");
+          timerInterval = setInterval(() => {
+            timerEl.textContent = Swal.getTimerLeft();
+          }, 100);
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        },
+      }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.timer) {
+          navigate("/browse-cars");
+        }
+      });
+
+
+      
     } catch (error) {
       console.error("Failed to add car:", error);
       toast.error("Failed to add car. Please try again!");
