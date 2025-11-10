@@ -13,6 +13,9 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 export default function Home() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredCars, setFilteredCars] = useState([]);
+
 
   useEffect(() => {
     async function load() {
@@ -30,6 +33,27 @@ export default function Home() {
     }
     load();
   }, []);
+
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (searchTerm.trim() === "") {
+        setFilteredCars([]); // reset to default
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/cars/search?query=${encodeURIComponent(searchTerm)}`);
+        const data = await res.json();
+        setFilteredCars(data);
+      } catch (error) {
+        console.error("Search error:", error);
+      }
+    }, 400); // debounce (wait 400ms after typing)
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
 
   const featured = cars.slice(0, 6);
 
@@ -146,41 +170,94 @@ export default function Home() {
           <h2 className="text-3xl font-semibold">Our Featured Cars</h2>
         </div>
 
+        {/* 🔍 Search Input */}
+        <div className="flex flex-col items-center justify-center mb-8 px-4">
+          <input
+            type="text"
+            placeholder="Search cars by name..."
+            className="w-full max-w-sm px-3 py-2.5 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 placeholder-gray-400 text-center transition-all"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
         {loading ? (
           <Loader />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featured.length === 0 && <div className="text-gray-500">No cars available yet.</div>}
-            {featured.map((c) => (
-              <Link to={`/cars/${c._id}`} key={c._id} className="border rounded-lg overflow-hidden shadow-sm cursor-pointer">
-                <img src={c.imageUrl || "/assets/car-placeholder.jpg"} alt={c.name} className="w-full h-44 object-cover" />
-                <div className="p-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">{c.carName}</h3>
-                    <span className={`text-xs px-2 py-1 rounded ${c.status === "booked" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
-                      {c.status === "booked" ? "Booked" : "Available"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">{c.category} • {c.location}</p>
-                  <p className="text-sm text-gray-600 mt-1"> <span className="font-bold">Car Provider:</span> {c.providerName}</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="text-lg font-bold">${c.rentPricePerDay}/day</div>
-                    <Link to={`/cars/${c._id}`} className="text-sm py-1 px-3 border rounded-md">View Details</Link>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <>
+
+            {searchTerm.trim() !== "" && filteredCars.length === 0 ? (
+
+              <div className="flex justify-center items-center h-40">
+                <p className="text-2xl font-semibold bg-gradient-to-r from-sky-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient-x drop-shadow-md">
+                  🚗 No cars found according to your search
+                </p>
+              </div>
+            ) : (
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {(filteredCars.length > 0 ? filteredCars : featured).map((c) => (
+                  <Link
+                    to={`/cars/${c._id}`}
+                    key={c._id}
+                    className="border rounded-lg overflow-hidden shadow-sm cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-md duration-200"
+                  >
+                    <img
+                      src={c.imageUrl || "/assets/car-placeholder.jpg"}
+                      alt={c.carName}
+                      className="w-full h-44 object-cover"
+                    />
+                    <div className="p-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold">{c.carName}</h3>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${c.status === "booked"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-green-100 text-green-700"
+                            }`}
+                        >
+                          {c.status === "booked" ? "Booked" : "Available"}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {c.category} • {c.location}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        <span className="font-bold">Car Provider:</span>{" "}
+                        {c.providerName}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="text-lg font-bold">
+                          ${c.rentPricePerDay}/day
+                        </div>
+                        <Link
+                          to={`/cars/${c._id}`}
+                          className="text-sm py-1 px-3 border rounded-md"
+                        >
+                          View Details
+                        </Link>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
-        <div className="relative my-4 text-center">
-          <Link to="/browse-cars" className="absolute right-0 top-1/2 -translate-y-1/2 text-sm text-sky-600">
-            See all
-          </Link>
-        </div>
-
+        {searchTerm.trim() === "" && (
+          <div className="relative my-4 text-center">
+            <Link
+              to="/browse-cars"
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-sm text-sky-600"
+            >
+              See all
+            </Link>
+          </div>
+        )}
       </section>
+
+
 
       {/* WHY RENT WITH US */}
       <section className="mb-16 px-4">
