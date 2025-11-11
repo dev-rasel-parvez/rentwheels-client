@@ -1,5 +1,5 @@
 
-export default function Loader({ size = 16 }) {
+export default function Loader({ size = 36 }) {
     return (
         <div className="flex items-center justify-center py-6">
             <svg
