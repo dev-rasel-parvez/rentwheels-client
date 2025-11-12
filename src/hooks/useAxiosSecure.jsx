@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import useAuth from "./useAuth";
 
 const instance = axios.create({
-  baseURL: 'https://rentwheelsprojects.netlify.app',
+  baseURL: 'https://rentwheels-server-orcin.vercel.app',
 });
 
 const useAxiosSecure = () => {
