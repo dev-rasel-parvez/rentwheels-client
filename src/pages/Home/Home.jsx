@@ -9,7 +9,7 @@ import Testimonials from "../../components/Testimonials ";
 import Newsletter from "../../components/Newsletter ";
 import { motion } from "framer-motion";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5173";
 
 export default function Home() {
   const [cars, setCars] = useState([]);
