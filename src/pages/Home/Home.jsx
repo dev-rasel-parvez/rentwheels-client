@@ -21,7 +21,7 @@ export default function Home() {
     async function load() {
       try {
         setLoading(true);
-        const res = await fetch(`${API_URL}/cars`);
+        const res = await fetch(`${API_URL}/cars/recent`);
         const data = await res.json();
         setCars(data || []);
         console.log(data);
