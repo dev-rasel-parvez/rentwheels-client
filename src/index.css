@@ -17,11 +17,24 @@
 
 
 .swal2-progress-bar-green {
-  background-color: #22c55e !important; /* Tailwind's green-500 */
+  background-color: #22c55e !important; 
 }
 
 .small-popup {
-  width: 350px !important; /* default is ~500px */
-  font-size: 0.9rem;       /* slightly smaller text */
+  width: 350px !important; 
+  font-size: 0.9rem;       
   padding: 22px !important;
+}
+
+
+
+motion-div, 
+motion-section {
+  border: none !important;
+  outline: none !important;
+}
+
+.motion-safe * {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
